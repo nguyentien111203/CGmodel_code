@@ -108,13 +108,14 @@ def subProblem(myp:Dac.Mypattern,duals_nodes,duals_links,duals_node_vnf,duals_sf
                     subprob += (lpSum(x_vw_k_ij[(v,w,k,i,j)] for j in myp.nodes if (i,j) in myp.links)-lpSum(x_vw_k_ij[(v,w,k,j,i)] for j in myp.nodes if (j,i) in myp.links))
                     - (x_vk_i[(v,k,i)]-x_vk_i[(w,k,i)]) <= M*(1-y_vw_k[(v,w,k)]) 
             
-    #Remove reduntdancy variables
+    # Remove reduntdancy variables
     for v in myp.sfc[k] :
         for w in myp.sfc[k]:
             if v!=w :
                 subprob += lpSum(x_vw_k_ij[(v,w,k,i,j)] for i in myp.nodes for j in myp.nodes if (i,j) in myp.links) == y_vw_k[(v,w,k)] 
 
-    #Objective : Minimize this reduced cost 
+    # Objective : Minimize this reduced cost
+    # Obj master problem: Try to map as much as sfcs it posible
     subprob += (1.0 - lpSum(lpSum(myp.vnfs_resource[v]*x_vk_i[(v,k,i)] for v in myp.sfc[k])*duals_nodes[i] for i in myp.nodes) 
                     - lpSum(myp.vnfs_link_resource[(v,w)]*z_vw_k_ij[(v,w,k,i,j)]*duals_links[(i,j)] for i in myp.nodes for j in myp.nodes for v in myp.sfc[k] for w in myp.sfc[k] if (i,j) in myp.links if v!=w)
                     - duals_sfc[k] 
